@@ -38,7 +38,7 @@ package com.ld48.challenges
 		
 		private function onMouseClick(e:MouseEvent):void
 		{
-			var item = MovieClip(e.currentTarget);
+			var item:MovieClip = MovieClip(e.currentTarget);
 			if (item.currentFrame < item.totalFrames)
 			{
 				item.gotoAndStop(item.currentFrame + 1);
@@ -48,7 +48,7 @@ package com.ld48.challenges
 				item.gotoAndStop(1);
 			}
 			
-			var checkFrame = item.currentFrame;
+			var checkFrame:int = item.currentFrame;
 			for (var i:int = 0; i < items.length; i++)
 			{
 				if (items[i].currentFrame != checkFrame)

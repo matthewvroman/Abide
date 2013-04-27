@@ -1,8 +1,8 @@
 package com.ld48 
 {
-	import com.ld48.challenges.ChallengeOne;
-	import com.ld48.challenges.ChallengeTwo;
-	import com.ld48.challenges.ChallengeThree;
+	import com.ld48.challenges.*;
+	import com.ld48.groups.ChallengeGroupOne;
+	import com.ld48.groups.*;
 	import com.ld48.ChallengeGroup;
 	import fl.transitions.TweenEvent;
 	import flash.display.MovieClip;
@@ -24,7 +24,7 @@ package com.ld48
 		private var _currentChallengeGroupNumber:int=-1;
 		private var _currentChallengeNumber:int = 0;
 		private var _lastChallenge:Challenge;
-		private var _currentChallenge:Challenge;
+		private var _currentChallenge:Challenge=null;
 		private var _currentChallengeGroup:ChallengeGroup;
 		private var _currentBackground:MovieClip;
 		private var _currentForeground:MovieClip;
@@ -32,6 +32,9 @@ package com.ld48
 		private var _challenges:Vector.<Challenge> = new Vector.<Challenge>();
 		
 		private var _playingSequence:Boolean = false;
+		
+		private var motionBlur:BlurFilter = new BlurFilter();
+			
 		
 		public function ChallengeManager(stage:Stage) 
 		{
@@ -45,21 +48,62 @@ package com.ld48
 			GameEventDispatcher.addEventListener(GameEvent.CHALLENGE_COMPLETE, onChallengeComplete);
 			GameEventDispatcher.addEventListener(GameEvent.CHALLENGE_FAILED, onChallengeFailed);
 			
-			_challengeGroups.push(new ChallengeGroup());
-			_challengeGroups.push(new ChallengeGroup());
 			
-			nextChallenge();
+			motionBlur.quality = 3;
+			motionBlur.blurX = 10;
+			motionBlur.blurY = 0;
+			
+			_challengeGroups.push(new ChallengeGroupOne());
+			_challengeGroups.push(new ChallengeGroupTwo());
+			
+			
+			start();
+		}
+		
+		private function start():void
+		{
+			_currentChallengeGroupNumber = 1;
+			_currentChallengeNumber = 1;
+			
+			_currentChallengeGroup = _challengeGroups[_currentChallengeGroupNumber-1];
+			_currentChallenge = _currentChallengeGroup.challenges[_currentChallengeNumber-1];
+			
+			setupBackground();
+			playStartSequence();
+			setupForeground();
 		}
 		
 		private function setupBackground():void
 		{
-			if (_currentBackground != null)
+			if (_currentChallengeNumber == 1)
 			{
-				_stage.removeChild(_currentBackground);
-				_currentBackground == null;
+				//first time in group
+				_stage.addChild(_currentChallengeGroup.background);
+				var tween:Tween = new Tween(_currentChallengeGroup.background, "alpha", None.easeIn, 0, 1, 0.75, true);
+				tween.addEventListener(TweenEvent.MOTION_FINISH, onBackgroundTweenComplete);
+				
+			}else{
+			
+				if (_currentBackground != null)
+				{
+					_stage.removeChild(_currentBackground);
+					_currentBackground == null;
+				}
+				
+				_currentBackground = _currentChallengeGroup.background;
+				_stage.addChildAt(_currentBackground, 1);
 			}
-			_currentBackground = _challengeGroups[_currentChallengeGroupNumber].background;
-			_stage.addChildAt(_currentBackground, 1);
+		}
+		
+		private function onBackgroundTweenComplete(e:TweenEvent):void
+		{
+			if (_currentBackground != null)
+				{
+					_stage.removeChild(_currentBackground);
+					_currentBackground == null;
+				}
+				
+				_currentBackground = _currentChallengeGroup.background;
 		}
 		
 		private function setupForeground():void
@@ -69,7 +113,7 @@ package com.ld48
 				_stage.removeChild(_currentForeground);
 				_currentForeground == null;
 			}
-			_currentForeground = _challengeGroups[_currentChallengeGroupNumber].foreground;
+			_currentForeground = _challengeGroups[_currentChallengeGroupNumber-1].foreground;
 			_currentForeground.mouseChildren = false;
 			_currentForeground.mouseEnabled = false;
 			_stage.addChild(_currentForeground);
@@ -80,14 +124,12 @@ package com.ld48
 			
 			_currentChallengeNumber++;
 			
-			if (_currentChallengeGroupNumber == -1 || _currentChallengeNumber > _challengeGroups[_currentChallengeGroupNumber].numChallenges)
+			if (_currentChallengeGroupNumber == -1 || _currentChallengeNumber > _currentChallengeGroup.numChallenges)
 			{
 				_currentChallengeGroupNumber++;
 				_currentChallengeNumber = 1;
 				
-				_currentChallengeGroup = _challengeGroups[_currentChallengeGroupNumber];
-				
-				playStartSequence();
+				_currentChallengeGroup = _challengeGroups[_currentChallengeGroupNumber-1];
 				
 				//check if we're on our last group
 				if (_currentChallengeGroupNumber > _challengeGroups.length)
@@ -99,13 +141,17 @@ package com.ld48
 			
 			setupBackground();
 			
+			if (_currentChallengeNumber == 1)
+			{
+				playStartSequence();
+			}
+			
 			if (_currentChallenge != null)
 			{
 				_lastChallenge = _currentChallenge;
-				_lastChallenge.cleanup();
 			}
 			
-			_currentChallenge = _challengeGroups[_currentChallengeGroupNumber].challenges[_currentChallengeNumber - 1];
+			_currentChallenge = _currentChallengeGroup.challenges[_currentChallengeNumber - 1];
 			
 			if (!_playingSequence)
 			{
@@ -143,10 +189,7 @@ package com.ld48
 		
 		public function switchChallenges():void
 		{
-			var motionBlur:BlurFilter = new BlurFilter();
-			motionBlur.quality = 3;
-			motionBlur.blurX = 10;
-			motionBlur.blurY = 0;
+			
 			
 			//old challenge
 			if (_lastChallenge)
@@ -184,16 +227,8 @@ package com.ld48
 		public function onChallengeComplete(e:GameEvent):void
 		{
 			
-			//setTimeout(nextChallenge, 2500);
-			nextChallenge();
-			/*
-			if (_currentChallengeNumber > _challenges.length - 1)
-			{
-				onAllChallengesComplete();
-			}else
-			{
-				nextChallenge();
-			}*/
+			_currentChallenge.cleanup();
+			setTimeout(nextChallenge, 2500);
 		}
 		
 		public function onChallengeFailed(e:GameEvent):void
