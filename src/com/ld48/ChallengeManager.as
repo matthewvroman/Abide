@@ -12,6 +12,9 @@ package com.ld48
 	import fl.transitions.easing.*;
 	import flash.filters.*;
 	import flash.utils.setTimeout;
+	import flash.media.Sound;
+	import flash.media.SoundChannel;
+	import flash.media.SoundTransform;
 	/**
 	 * ...
 	 * @author Matt
@@ -34,6 +37,10 @@ package com.ld48
 		private var _playingSequence:Boolean = false;
 		
 		private var motionBlur:BlurFilter = new BlurFilter();
+		
+		private var completeSFX:ChallengeSFX = new ChallengeSFX();
+		private var sfxSoundChannel:SoundChannel = new SoundChannel();
+		private var sfxSoundTransform:SoundTransform = new SoundTransform(0.5,0);
 			
 		
 		public function ChallengeManager(stage:Stage) 
@@ -135,6 +142,8 @@ package com.ld48
 				if (_currentChallengeGroupNumber > _challengeGroups.length)
 				{
 					//done
+					GameEventDispatcher.dispatchEvent(new GameEvent(GameEvent.ALL_CHALLENGES_COMPLETE));
+					return;
 				}
 				
 				_currentChallengeGroup = _challengeGroups[_currentChallengeGroupNumber-1];
@@ -232,7 +241,7 @@ package com.ld48
 		
 		public function onChallengeComplete(e:GameEvent):void
 		{
-			
+			sfxSoundChannel = completeSFX.play();
 			_currentChallenge.cleanup();
 			setTimeout(nextChallenge, 2000);
 		}

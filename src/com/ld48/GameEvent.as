@@ -7,7 +7,7 @@ package com.ld48
 		public static const DEFAULT_GAME_EVENT:String = "DefaultGameEvent";
 		public static const CHALLENGE_COMPLETE:String = "ChallengeComplete";
 		public static const CHALLENGE_FAILED:String = "ChallengeFailed";
-		
+		public static const ALL_CHALLENGES_COMPLETE:String = "AllChallengesComplet";
 		public var data:*;
 		
 		public function GameEvent(type:String=GameEvent.DEFAULT_GAME_EVENT, eventData:*=null, bubbles:Boolean=false, cancelable:Boolean=false):void

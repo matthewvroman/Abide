@@ -9,8 +9,13 @@ package
 	import flash.utils.getTimer;
 	import flash.utils.setTimeout;
 	import com.ld48.ChallengeManager;
+	import com.ld48.GameEvent;
+	import com.ld48.GameEventDispatcher;
 	import fl.transitions.Tween;
 	import fl.transitions.easing.None;
+	import flash.media.Sound;
+	import flash.media.SoundChannel;
+	import flash.media.SoundTransform;
 	
 	/**
 	 * ...
@@ -26,9 +31,14 @@ package
 		
 		private var _challengeManager:ChallengeManager; 
 		private var _menu:Menu;
+		private var _winScreen:WinScreen;
 		
 		private var _waitingForMenuFade:Boolean = false;
 		private var _playBtnStartScale:Number;
+		
+		private var backgroundMusic:BackgroundMusic = new BackgroundMusic();
+		private var musicSoundChannel:SoundChannel = new SoundChannel();
+		private var musicSoundTransform:SoundTransform = new SoundTransform(1.0,0);
 		
 		public function Main():void 
 		{
@@ -40,10 +50,25 @@ package
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
+			musicSoundChannel = backgroundMusic.play(0, 1000);
 			
 			_t = getTimer();
 			this.addEventListener(Event.ENTER_FRAME, OnEnterFrame);
+			GameEventDispatcher.addEventListener(GameEvent.ALL_CHALLENGES_COMPLETE, onAllChallengesComplete);
+			gotoMenu();
+		}
+		
+		private function onAllChallengesComplete(e:GameEvent):void
+		{
+			_challengeManager = null;
+			_winScreen = new WinScreen();
+			stage.addChild(_winScreen);
+			_winScreen.gotoAndPlay(1);
 			
+		}
+		
+		private function gotoMenu():void
+		{
 			_menu = new Menu();
 			_menu.foreground.mouseChildren = false;
 			_menu.foreground.mouseEnabled = false;
@@ -68,6 +93,17 @@ package
 		
 		private function OnEnterFrame(e:Event):void
 		{
+			
+			if (_winScreen != null)
+			{
+				if (_winScreen.currentFrame == _winScreen.totalFrames)
+				{
+					stage.removeChild(_winScreen);
+					_winScreen = null;
+					_challengeManager = null;
+					gotoMenu();
+				}
+			}
 			
 			if (_waitingForMenuFade && _menu)
 			{
