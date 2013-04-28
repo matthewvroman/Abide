@@ -20,14 +20,10 @@ package com.ld48.groups
 			background = new ActThreeBackground();
 			foreground = new ActOneForeground();
 			
-			
 			_challenges.push(new ChallengeEleven());
+			_challenges.push(new ChallengeFive());
 			_challenges.push(new ChallengeTwelve());
-			
-			_challenges.push(new ChallengeNine());
-			_challenges.push(new ChallengeEight());
-			_challenges.push(new ChallengeSeven());
-			
+			_challenges.push(new ChallengeTen());
 			
 
 			startSequence = new StartSequence();

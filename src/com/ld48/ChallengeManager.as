@@ -60,10 +60,10 @@ package com.ld48
 			motionBlur.blurX = 10;
 			motionBlur.blurY = 0;
 			
-			_challengeGroups.push(new ChallengeGroupThree());
+			
 			_challengeGroups.push(new ChallengeGroupOne());
 			_challengeGroups.push(new ChallengeGroupTwo());
-			
+			_challengeGroups.push(new ChallengeGroupThree());
 			
 			
 			start();

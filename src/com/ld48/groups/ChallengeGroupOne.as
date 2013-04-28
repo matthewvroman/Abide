@@ -22,7 +22,6 @@ package com.ld48.groups
 			
 			_challenges.push(new ChallengeOne());
 			_challenges.push(new ChallengeTwo());
-			_challenges.push(new ChallengeThree());
 			_challenges.push(new ChallengeFour());
 			_challenges.push(new ChallengeSix());
 			
