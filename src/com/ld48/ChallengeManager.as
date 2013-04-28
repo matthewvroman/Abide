@@ -53,8 +53,10 @@ package com.ld48
 			motionBlur.blurX = 10;
 			motionBlur.blurY = 0;
 			
+			_challengeGroups.push(new ChallengeGroupThree());
 			_challengeGroups.push(new ChallengeGroupOne());
 			_challengeGroups.push(new ChallengeGroupTwo());
+			
 			
 			
 			start();
@@ -129,13 +131,15 @@ package com.ld48
 				_currentChallengeGroupNumber++;
 				_currentChallengeNumber = 1;
 				
-				_currentChallengeGroup = _challengeGroups[_currentChallengeGroupNumber-1];
-				
 				//check if we're on our last group
 				if (_currentChallengeGroupNumber > _challengeGroups.length)
 				{
 					//done
 				}
+				
+				_currentChallengeGroup = _challengeGroups[_currentChallengeGroupNumber-1];
+				
+				
 				
 			}
 			
@@ -170,6 +174,7 @@ package com.ld48
 		{
 			_stage.addChild(_currentChallengeGroup.startSequence);
 			_stage.addEventListener(Event.ENTER_FRAME, onSequenceAdvance);
+			_currentChallengeGroup.startSequence.gotoAndPlay(1);
 			_playingSequence = true;
 		}
 		
@@ -178,6 +183,7 @@ package com.ld48
 		{
 			if (_currentChallengeGroup.startSequence.totalFrames == _currentChallengeGroup.startSequence.currentFrame)
 			{
+				trace("end of sequence");
 				_stage.removeChild(_currentChallengeGroup.startSequence);
 				_stage.removeEventListener(Event.ENTER_FRAME, onSequenceAdvance);
 				_playingSequence = false;
@@ -228,7 +234,7 @@ package com.ld48
 		{
 			
 			_currentChallenge.cleanup();
-			setTimeout(nextChallenge, 2500);
+			setTimeout(nextChallenge, 2000);
 		}
 		
 		public function onChallengeFailed(e:GameEvent):void
